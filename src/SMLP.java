@@ -5,13 +5,13 @@
         public class SMLP implements SMLPConstants {
                 public static void main(String args []) throws ParseException, TokenMgrError {
                         SMLP parser = new SMLP( System.in ) ;
-                        int val = parser.Start();
+                        double val = parser.Start();
                         System.out.println(val);
                 }
 
 /* specify the parser */
   final public 
-int Start() throws ParseException, NumberFormatException {int value ;
+double Start() throws ParseException, NumberFormatException {double value ;
 value = Expression() ;
     jj_consume_token(0);
 {if ("" != null) return value ;}
@@ -19,8 +19,8 @@ value = Expression() ;
   }
 
 /* Expression: Consists of Operands (arguments of +|- operation) */
-  final public int Expression() throws ParseException, NumberFormatException {int i ;
-        int value ;
+  final public double Expression() throws ParseException, NumberFormatException {double i ;
+        double value ;
 value = Operand() ;
     label_1:
     while (true) {
@@ -58,8 +58,8 @@ value -= i ;
   }
 
 /* Operand: consists of Factors (arguments of *|/ operation) */
-  final public int Operand() throws ParseException, NumberFormatException {int i ;
-        int value ;
+  final public double Operand() throws ParseException, NumberFormatException {double i ;
+        double value ;
 value = Factor() ;
     label_2:
     while (true) {
@@ -97,9 +97,9 @@ value /= i ;
   }
 
 /* Factor: consists of Primaries (numbers) */
-  final public int Factor() throws ParseException, NumberFormatException {int i ;
-        int power ;
-        int value ;
+  final public double Factor() throws ParseException, NumberFormatException {double i ;
+        double power ;
+        double value ;
 value = Primary() ;
     label_3:
     while (true) {
@@ -114,18 +114,18 @@ value = Primary() ;
       }
       jj_consume_token(POWER);
 power = Factor() ;
-value = (int) Math.pow ( value, power ) ;
+value =  Math.pow ( value, power ) ;
     }
 {if ("" != null) return value ;}
     throw new Error("Missing return statement in function");
   }
 
-  final public int Primary() throws ParseException, NumberFormatException {Token t ;
-        int value ;
+  final public double Primary() throws ParseException, NumberFormatException {Token t ;
+        double value ;
     switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
     case NUMBER:{
       t = jj_consume_token(NUMBER);
-{if ("" != null) return Integer.parseInt ( t.image ) ;}
+{if ("" != null) return Double.parseDouble ( t.image ) ;}
       break;
       }
     case OPAR:{
@@ -275,7 +275,7 @@ value = Expression() ;
   /** Generate ParseException. */
   public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[13];
+    boolean[] la1tokens = new boolean[14];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
@@ -289,7 +289,7 @@ value = Expression() ;
         }
       }
     }
-    for (int i = 0; i < 13; i++) {
+    for (int i = 0; i < 14; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;

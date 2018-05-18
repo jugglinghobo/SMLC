@@ -26,6 +26,8 @@ public interface SMLPConstants {
   int POWER = 11;
   /** RegularExpression Id. */
   int NUMBER = 12;
+  /** RegularExpression Id. */
+  int DIGITS = 13;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -45,6 +47,7 @@ public interface SMLPConstants {
     "\"/\"",
     "\"^\"",
     "<NUMBER>",
+    "<DIGITS>",
   };
 
 }

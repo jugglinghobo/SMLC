@@ -1,5 +1,8 @@
 /**
- * A first example — adding integers.
+ * SMLP v2 - Simple Math Language Parser v2
+ * Parser for Parsing SML v1 with additional features:
+ * * support for sin(), cos(), tan()
+ * * support for real numbers
  */
 options
 {
@@ -12,7 +15,7 @@ PARSER_BEGIN(SMLP)
 	public class SMLP {
 		public static void main(String args []) throws ParseException, TokenMgrError {
 			SMLP parser = new SMLP( System.in ) ;
-			int val = parser.Start();
+			double val = parser.Start();
 			System.out.println(val);
 		}
 	}
@@ -35,7 +38,7 @@ Expression := MultExpression AddOperator MultExpression
 MultExpression := ExpExpression MultOperator ExpExpression
 ExpExpression := PrimaryExpression PowOperator ExpExpression
 PrimaryExpression := Number | OPar Expression CPar
-Number := Integer Integer*
+Number := Digit Digit*
 
 Tokens:
 OPar := (
@@ -43,7 +46,7 @@ CPar := )
 AddOperator := + | -
 MultOperator := * | /
 PowOperator := ^
-Integer := 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+Digit := 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 */
 
 TOKEN : /* PARENTHESES */
@@ -61,16 +64,17 @@ TOKEN : /* OPERATORS */
 	| < POWER : "^" >
 }
 
-TOKEN :
-{
-	< NUMBER : ([ "0"-"9" ])+ >
+TOKEN : /* NUMBER format for Floating point precision */
+{ 
+	< NUMBER : <DIGITS> | <DIGITS> "." <DIGITS> | <DIGITS> "." | "." <DIGITS> >
+	| < #DIGITS : (["0"-"9"])+ >
 }
 
 /* specify the parser */
 
-int Start() throws NumberFormatException :
+double Start() throws NumberFormatException :
 {
-	int value ; 
+	double value ; 
 }
 {
 	{ value = Expression() ; }
@@ -79,10 +83,10 @@ int Start() throws NumberFormatException :
 }
 
 /* Expression: Consists of Operands (arguments of +|- operation) */
-int Expression() throws NumberFormatException :
+double Expression() throws NumberFormatException :
 {
-	int i ;
-	int value ; 
+	double i ;
+	double value ; 
 }
 {
 	{ value = Operand() ; }
@@ -99,10 +103,10 @@ int Expression() throws NumberFormatException :
 }
 
 /* Operand: consists of Factors (arguments of *|/ operation) */
-int Operand() throws NumberFormatException :
+double Operand() throws NumberFormatException :
 {
-	int i ;
-	int value ;
+	double i ;
+	double value ;
 }
 {
 	{ value = Factor() ; }
@@ -120,32 +124,32 @@ int Operand() throws NumberFormatException :
 }
 
 /* Factor: consists of Primaries (numbers) */
-int Factor() throws NumberFormatException :
+double Factor() throws NumberFormatException :
 {
-	int i ;
-	int power ;
-	int value ;
+	double i ;
+	double power ;
+	double value ;
 }
 {
 	{ value = Primary() ; }
 	(
 		<POWER>
 		{ power = Factor() ; }
-		{ value = (int) Math.pow ( value, power ) ; }
+		{ value =  Math.pow ( value, power ) ; }
 	)*
 
 	{ return value ; }
 }
 
 
-int Primary() throws NumberFormatException :
+double Primary() throws NumberFormatException :
 {
 	Token t ;
-	int value ;
+	double value ;
 }
 {
 	t = <NUMBER>
-	{ return Integer.parseInt ( t.image ) ; }
+	{ return Double.parseDouble ( t.image ) ; }
 	|
 	<OPAR>
 	{ value = Expression() ; }
