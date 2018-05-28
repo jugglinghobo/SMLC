@@ -17,9 +17,9 @@ PARSER_BEGIN(SMLC)
 	public class SMLC {
 		public static void main(String args []) throws ParseException, TokenMgrError {
 			SMLC parser = new SMLC( System.in ) ;
-			System.out.println( "SMLC V2 - Now with 3 more operations!" ) ;
-			System.out.println( "Please enter your SML expression" ) ;
-			System.out.print( "=? " ) ;
+			System.out.println("Welcome to SMLI V2 - The Interactive SML Parser");
+			System.out.println("Please enter your SML expression");
+			System.out.print("=? ");
 
 			parser.Start(System.out) ;
 		}
@@ -27,35 +27,42 @@ PARSER_BEGIN(SMLC)
 
 PARSER_END(SMLC)
 
-	/* lexical analyzer */
-	SKIP :
-{
-	" "
-}
-
 /*
+GRAMMAR:
 Nonterminals:
-Start := Expression
-Expression := MultExpression AddOperator MultExpression
-MultExpression := ExpExpression MultOperator ExpExpression
-ExpExpression := RealNum PowOperator IntNum
-RealNum := Number | OPar Expression CPar
-IntNum := Number
-Number := Digit Digit*
+Start := (Expression EOL | HELP)* | QUIT | EOF
+Expression := MultExpression ADDOP MultExpression
+MultExpression := PowExpression MULTOP PowExpression
+PowExpression := TrigExpression POWOP TrigExpression
+TrigExpression := Numerical | TRIGFUN Numerical
+Numerical := Number | OPAR Expression CPAR
+Number := Digits | Digits.Digits | Digits. | .Digits
+Digits := DIGIT DIGIT*
 
-Tokens:
-OPar := (
-CPar := )
-AddOperator := + | -
-MultOperator := * | /
-PowOperator := ^
-Digit := 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+Terminals (Tokens):
+OPAR := (
+CPAR := )
+TRIGFUN := sin | cos | tan
+ADDOP := + | -
+MULTOP := * | /
+POWOP := ^
+DIGIT := 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 */
+
+
+SKIP : { " " }
 
 TOKEN : /* PARENTHESES */
 {
 	< OPAR : "(" >
 	| < CPAR : ")" >
+}
+
+TOKEN : /* TRIG FUNCTIONS */
+{
+	< SIN : "sin" | "SIN" >
+	| < COS : "cos" | "COS" >
+	| < TAN : "tan" | "TAN" >
 }
 
 TOKEN : /* OPERATORS */
@@ -67,17 +74,7 @@ TOKEN : /* OPERATORS */
 	| < POWER : "^" >
 }
 
-// TOKEN : /* NUMBER format for real numbers and integers */
-// { 
-// 	< NUMBER : <REAL> | <INTEGER> >
-// 	| < REAL : <INTEGER> "." <INTEGER> | <INTEGER> "." | "." <INTEGER> >
-// 	| < INTEGER : <DIGITS> >
-// 	| < #DIGITS : (["0"-"9"])+ >
-// }
-
-TOKEN : { < NUMBER : <REAL> | <INTEGER> > }
-TOKEN : { < REAL : <DIGITS> | <DIGITS> "." <DIGITS> | <DIGITS> "." | "." <DIGITS> > }
-TOKEN : { < INTEGER : <DIGITS> > }
+TOKEN : { < NUMBER : <DIGITS> | <DIGITS> "." <DIGITS> | <DIGITS> "." | "." <DIGITS> > }
 TOKEN : { < #DIGITS : (["0"-"9"])+ > }
 
 TOKEN :
@@ -85,12 +82,9 @@ TOKEN :
 	< EOL : "\r" | "\n" | "\r\n" >
 }
 
-TOKEN : { <HELP: "h"> }
+TOKEN : { <HELP : "h"> }
 
-TOKEN :
-{
-	<QUIT: "q" | "Q" >
-}
+TOKEN : { <QUIT : "q" | "Q" > }
 
 /* specify the parser */
 
@@ -115,7 +109,13 @@ void Start(PrintStream printStream) throws NumberFormatException :
 	 { printStream.println("quit: 'q'"); }
 	 { printStream.print("=? "); }
 	)*
+	(
 		<QUIT>
+		{ printStream.println("Goodbye"); }
+		|
+		<EOF>
+		{ printStream.println("Goodbye"); }
+		)
 } 
 
 /* Expression: Consists of Operands (arguments of +|- operation) */
@@ -125,75 +125,81 @@ double Expression() throws NumberFormatException :
 	double value ; 
 }
 {
-	value = Operand()
+	value = MultExpression()
 	(
 	 <PLUS>
-	 i = Operand()
+	 i = MultExpression()
 	 { value = value + i ; }
 	 |
 	 <MINUS>
-	 i = Operand()
+	 i = MultExpression()
 	 { value = value - i ; }
 	)*
 	{ return value ; }
 }
 
 /* Operand: consists of Factors (arguments of *|/ operation) */
-double Operand() throws NumberFormatException :
+double MultExpression() throws NumberFormatException :
 {
 	double i ;
 	double value ;
 }
 {
-	value = Factor()
+	value = PowExpression()
 	(
 		<MULT>
-		i = Factor()
+		i = PowExpression()
 		{ value = value * i ; }
 		|
 		<DIV>
-		i = Factor()
+		i = PowExpression()
 		{ value = value / i ; }
 	)*
 
 	{ return value ; }
 }
 
-/* Factor: consists of a real number and an int power */
-double Factor() throws NumberFormatException :
+/* PowExpression: a TrigExpression to the power of the result of a trig expression */
+double PowExpression() throws NumberFormatException :
 {
 	double power ;
 	double value ;
 }
 {
-	value = RealNum()
+	value = TrigExpression()
 	(
+		LOOKAHEAD(2)
 		<POWER>
-		power = RealNum()
+		power = PowExpression()
 		{ value =  Math.pow(value, power) ; }
 	)*
-
 	{ return value ; }
 }
 
-int IntNum() throws NumberFormatException :
+double TrigExpression() throws NumberFormatException :
 {
-	Token t ;
-	int value ;
+	double value ;
 }
 {
-	t = <INTEGER>
-
-	{ return Integer.parseInt( t.image ) ; }
+	value = Num()
+	{ return value; }
 	|
-	<MINUS>
-	t = <INTEGER>
-	{ return (Integer.parseInt(t.image) * -1) ; }
-
+	(
+	 <SIN>
+	 value = Num()
+	 { return Math.sin(value); }
+	 |
+	 <COS>
+	 value = Num()
+	 { return Math.cos(value); }
+	 |
+	 <TAN>
+	 value = Num()
+	 { return Math.tan(value); }
+	)*
 }
 
-
-double RealNum() throws NumberFormatException :
+double Num() throws NumberFormatException :
 {
 	Token t ;
 	double value ;
