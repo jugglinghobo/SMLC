@@ -12,12 +12,10 @@ options
 PARSER_BEGIN(SMLC)
 	package smlc;
 
-	import java.math.BigDecimal;
-
 	public class SMLC {
 		public static void main(String args []) throws ParseException, TokenMgrError {
 			SMLC parser = new SMLC( System.in ) ;
-			BigDecimal val ;
+			double val ;
 			System.out.println( "SMLC V2 - Now with 3 more operations!" ) ;
 			System.out.println( "Please enter your SML expression" ) ;
 			while (true) {
@@ -86,9 +84,9 @@ TOKEN :
 
 /* specify the parser */
 
-BigDecimal Start() throws NumberFormatException :
+double Start() throws NumberFormatException :
 {
-	BigDecimal value ; 
+	double value ; 
 }
 {
 	{ value = Expression() ; }
@@ -97,58 +95,58 @@ BigDecimal Start() throws NumberFormatException :
 }
 
 /* Expression: Consists of Operands (arguments of +|- operation) */
-BigDecimal Expression() throws NumberFormatException :
+double Expression() throws NumberFormatException :
 {
-	BigDecimal i ;
-	BigDecimal value ; 
+	double i ;
+	double value ; 
 }
 {
 	{ value = Operand() ; }
 	(
 		<PLUS>
 		{ i = Operand() ; }
-		{ value = value.add(i) ; }
+		{ value = value + i ; }
 		|
 		<MINUS>
 		{ i = Operand() ; }
-		{ value = value.subtract(i) ; }
+		{ value = value - i ; }
 	)*
 	{ return value ; }
 }
 
 /* Operand: consists of Factors (arguments of *|/ operation) */
-BigDecimal Operand() throws NumberFormatException :
+double Operand() throws NumberFormatException :
 {
-	BigDecimal i ;
-	BigDecimal value ;
+	double i ;
+	double value ;
 }
 {
 	{ value = Factor() ; }
 	(
 		<MULT>
 		{ i = Factor() ; }
-		{ value = value.multiply(i) ; }
+		{ value = value * i ; }
 		|
 		<DIV>
 		{ i = Factor() ; }
-		{ value = value.divide(i) ; }
+		{ value = value / i ; }
 	)*
 
 	{ return value ; }
 }
 
 /* Factor: consists of a real number and an int power */
-BigDecimal Factor() throws NumberFormatException :
+double Factor() throws NumberFormatException :
 {
 	int power ;
-	BigDecimal value ;
+	double value ;
 }
 {
 	{ value = RealNum() ; }
 	(
 		<POWER>
 		{ power = IntNum() ; }
-		{ value =  value.pow(power) ; }
+		{ value =  Math.pow(value, power) ; }
 	)*
 
 	{ return value ; }
@@ -171,14 +169,14 @@ int IntNum() throws NumberFormatException :
 }
 
 
-BigDecimal RealNum() throws NumberFormatException :
+double RealNum() throws NumberFormatException :
 {
 	Token t ;
-	BigDecimal value ;
+	double value ;
 }
 {
 	t = <NUMBER>
-	{ value = new BigDecimal (t.image).setScale(1) ; }
+	{ value = Double.parseDouble (t.image) ; }
 	{ return value ; }
 	|
 	<OPAR>
@@ -188,7 +186,7 @@ BigDecimal RealNum() throws NumberFormatException :
 	|
 	<MINUS>
 	t = <NUMBER>
-	{ value =  new BigDecimal (t.image).negate() ; }
+	{ value = (Double.parseDouble(t.image) * -1) ; }
 
 	{ return value ; }
 }
