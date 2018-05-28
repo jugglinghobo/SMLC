@@ -12,18 +12,16 @@ options
 PARSER_BEGIN(SMLC)
 	package smlc;
 
+	import java.io.PrintStream ;
+
 	public class SMLC {
 		public static void main(String args []) throws ParseException, TokenMgrError {
 			SMLC parser = new SMLC( System.in ) ;
-			double val ;
 			System.out.println( "SMLC V2 - Now with 3 more operations!" ) ;
 			System.out.println( "Please enter your SML expression" ) ;
-			while (true) {
-				System.out.print("=? ") ;
-				val = parser.Start() ;
-				System.out.println(val) ;
-			}
+			System.out.print( "=? " ) ;
 
+			parser.Start(System.out) ;
 		}
 	}
 
@@ -69,30 +67,56 @@ TOKEN : /* OPERATORS */
 	| < POWER : "^" >
 }
 
-TOKEN : /* NUMBER format for real numbers and integers */
-{ 
-	< NUMBER : <REAL> | <INTEGER> >
-	| < REAL : <INTEGER> "." <INTEGER> | <INTEGER> "." | "." <INTEGER> >
-	| < INTEGER : <DIGITS> >
-	| < #DIGITS : (["0"-"9"])+ >
-}
+// TOKEN : /* NUMBER format for real numbers and integers */
+// { 
+// 	< NUMBER : <REAL> | <INTEGER> >
+// 	| < REAL : <INTEGER> "." <INTEGER> | <INTEGER> "." | "." <INTEGER> >
+// 	| < INTEGER : <DIGITS> >
+// 	| < #DIGITS : (["0"-"9"])+ >
+// }
+
+TOKEN : { < NUMBER : <REAL> | <INTEGER> > }
+TOKEN : { < REAL : <DIGITS> | <DIGITS> "." <DIGITS> | <DIGITS> "." | "." <DIGITS> > }
+TOKEN : { < INTEGER : <DIGITS> > }
+TOKEN : { < #DIGITS : (["0"-"9"])+ > }
 
 TOKEN :
 {
 	< EOL : "\r" | "\n" | "\r\n" >
 }
 
+TOKEN : { <HELP: "h"> }
+
+TOKEN :
+{
+	<QUIT: "q" | "Q" >
+}
+
 /* specify the parser */
 
-double Start() throws NumberFormatException :
+void Start(PrintStream printStream) throws NumberFormatException :
 {
-	double value ; 
+	double value;
 }
 {
-	{ value = Expression() ; }
-	<EOL>
-	{ return value ; }
-}
+	(
+	 value = Expression()
+	 <EOL>
+	 { printStream.println( "=> " + value ); }
+	 { printStream.print("=? "); }
+	 |
+	 <HELP>
+	 <EOL>
+	 { printStream.println("HELP - SMLI Spec:"); }
+	 { printStream.println("add: 'r1 + r2'"); }
+	 { printStream.println("subtract: 'r1 - r2'"); }
+	 { printStream.println("multiply: 'r1 * r2'"); }
+	 { printStream.println("divide: 'r1 / r2'"); }
+	 { printStream.println("quit: 'q'"); }
+	 { printStream.print("=? "); }
+	)*
+		<QUIT>
+} 
 
 /* Expression: Consists of Operands (arguments of +|- operation) */
 double Expression() throws NumberFormatException :
@@ -101,15 +125,15 @@ double Expression() throws NumberFormatException :
 	double value ; 
 }
 {
-	{ value = Operand() ; }
+	value = Operand()
 	(
-		<PLUS>
-		{ i = Operand() ; }
-		{ value = value + i ; }
-		|
-		<MINUS>
-		{ i = Operand() ; }
-		{ value = value - i ; }
+	 <PLUS>
+	 i = Operand()
+	 { value = value + i ; }
+	 |
+	 <MINUS>
+	 i = Operand()
+	 { value = value - i ; }
 	)*
 	{ return value ; }
 }
@@ -121,14 +145,14 @@ double Operand() throws NumberFormatException :
 	double value ;
 }
 {
-	{ value = Factor() ; }
+	value = Factor()
 	(
 		<MULT>
-		{ i = Factor() ; }
+		i = Factor()
 		{ value = value * i ; }
 		|
 		<DIV>
-		{ i = Factor() ; }
+		i = Factor()
 		{ value = value / i ; }
 	)*
 
@@ -138,14 +162,14 @@ double Operand() throws NumberFormatException :
 /* Factor: consists of a real number and an int power */
 double Factor() throws NumberFormatException :
 {
-	int power ;
+	double power ;
 	double value ;
 }
 {
-	{ value = RealNum() ; }
+	value = RealNum()
 	(
 		<POWER>
-		{ power = IntNum() ; }
+		power = RealNum()
 		{ value =  Math.pow(value, power) ; }
 	)*
 
@@ -176,17 +200,17 @@ double RealNum() throws NumberFormatException :
 }
 {
 	t = <NUMBER>
-	{ value = Double.parseDouble (t.image) ; }
+	{ value = Double.parseDouble (t.image); }
 	{ return value ; }
 	|
 	<OPAR>
-	{ value = Expression() ; }
+	value = Expression()
 	<CPAR>
 	{ return value ; }
 	|
 	<MINUS>
 	t = <NUMBER>
-	{ value = (Double.parseDouble(t.image) * -1) ; }
+	{ value = (Double.parseDouble(t.image) * -1); }
 
 	{ return value ; }
 }
