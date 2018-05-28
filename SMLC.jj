@@ -73,10 +73,10 @@ TOKEN : /* OPERATORS */
 
 TOKEN : /* NUMBER format for real numbers and integers */
 { 
-	< #DIGITS : (["0"-"9"])+ >
-	| < INTEGER : <DIGITS> >
+	< NUMBER : <REAL> | <INTEGER> >
 	| < REAL : <INTEGER> "." <INTEGER> | <INTEGER> "." | "." <INTEGER> >
-	| < NUMBER : <REAL> | <INTEGER> >
+	| < INTEGER : <DIGITS> >
+	| < #DIGITS : (["0"-"9"])+ >
 }
 
 TOKEN :
@@ -163,6 +163,11 @@ int IntNum() throws NumberFormatException :
 	t = <INTEGER>
 
 	{ return Integer.parseInt( t.image ) ; }
+	|
+	<MINUS>
+	t = <INTEGER>
+	{ return (Integer.parseInt(t.image) * -1) ; }
+
 }
 
 
@@ -173,11 +178,17 @@ BigDecimal RealNum() throws NumberFormatException :
 }
 {
 	t = <NUMBER>
-	{ return new BigDecimal (t.image).setScale(1) ; }
+	{ value = new BigDecimal (t.image).setScale(1) ; }
+	{ return value ; }
 	|
 	<OPAR>
 	{ value = Expression() ; }
 	<CPAR>
+	{ return value ; }
+	|
+	<MINUS>
+	t = <NUMBER>
+	{ value =  new BigDecimal (t.image).negate() ; }
 
 	{ return value ; }
 }
