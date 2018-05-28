@@ -1,1 +1,1 @@
-cd src && javacc ../SMLP.jj && cd .. && javac -d . ./src/*.java
+cd src && javacc ../SMLC.jj && cd .. && javac -d . ./src/*.java

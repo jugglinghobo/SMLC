@@ -1,5 +1,5 @@
 /**
- * SMLP v2 - Simple Math Language Parser v2
+ * SMLC v2 - Simple Math Language Parser v2
  * Parser for Parsing SML v1 with additional features:
  * * support for sin(), cos(), tan()
  * * support for real numbers
@@ -10,15 +10,15 @@ options
 }
 
 PARSER_BEGIN(SMLC)
-	package smlp;
+	package smlc;
 
 	import java.math.BigDecimal;
 
-	public class SMLP {
+	public class SMLC {
 		public static void main(String args []) throws ParseException, TokenMgrError {
-			SMLP parser = new SMLP( System.in ) ;
+			SMLC parser = new SMLC( System.in ) ;
 			BigDecimal val ;
-			System.out.println( "SMLP V2 - Now with 3 more operations!" ) ;
+			System.out.println( "SMLC V2 - Now with 3 more operations!" ) ;
 			System.out.println( "Please enter your SML expression" ) ;
 			while (true) {
 				System.out.print("=? ") ;
@@ -29,7 +29,7 @@ PARSER_BEGIN(SMLC)
 		}
 	}
 
-PARSER_END(SMLP)
+PARSER_END(SMLC)
 
 	/* lexical analyzer */
 	SKIP :
