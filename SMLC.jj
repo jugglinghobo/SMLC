@@ -9,14 +9,23 @@ options
 	static = false;
 }
 
-PARSER_BEGIN(SMLP)
+PARSER_BEGIN(SMLC)
 	package smlp;
+
+	import java.math.BigDecimal;
 
 	public class SMLP {
 		public static void main(String args []) throws ParseException, TokenMgrError {
 			SMLP parser = new SMLP( System.in ) ;
-			double val = parser.Start();
-			System.out.println(val);
+			BigDecimal val ;
+			System.out.println( "SMLP V2 - Now with 3 more operations!" ) ;
+			System.out.println( "Please enter your SML expression" ) ;
+			while (true) {
+				System.out.print("=? ") ;
+				val = parser.Start() ;
+				System.out.println(val) ;
+			}
+
 		}
 	}
 
@@ -26,9 +35,6 @@ PARSER_END(SMLP)
 	SKIP :
 {
 	" "
-		| "\r"
-		| "\n"
-		| "\r\n"
 }
 
 /*
@@ -36,8 +42,9 @@ Nonterminals:
 Start := Expression
 Expression := MultExpression AddOperator MultExpression
 MultExpression := ExpExpression MultOperator ExpExpression
-ExpExpression := PrimaryExpression PowOperator ExpExpression
-PrimaryExpression := Number | OPar Expression CPar
+ExpExpression := RealNum PowOperator IntNum
+RealNum := Number | OPar Expression CPar
+IntNum := Number
 Number := Digit Digit*
 
 Tokens:
@@ -64,92 +71,109 @@ TOKEN : /* OPERATORS */
 	| < POWER : "^" >
 }
 
-TOKEN : /* NUMBER format for Floating point precision */
+TOKEN : /* NUMBER format for real numbers and integers */
 { 
-	< NUMBER : <DIGITS> | <DIGITS> "." <DIGITS> | <DIGITS> "." | "." <DIGITS> >
-	| < #DIGITS : (["0"-"9"])+ >
+	< #DIGITS : (["0"-"9"])+ >
+	| < INTEGER : <DIGITS> >
+	| < REAL : <INTEGER> "." <INTEGER> | <INTEGER> "." | "." <INTEGER> >
+	| < NUMBER : <REAL> | <INTEGER> >
+}
+
+TOKEN :
+{
+	< EOL : "\r" | "\n" | "\r\n" >
 }
 
 /* specify the parser */
 
-double Start() throws NumberFormatException :
+BigDecimal Start() throws NumberFormatException :
 {
-	double value ; 
+	BigDecimal value ; 
 }
 {
 	{ value = Expression() ; }
-	<EOF>
+	<EOL>
 	{ return value ; }
 }
 
 /* Expression: Consists of Operands (arguments of +|- operation) */
-double Expression() throws NumberFormatException :
+BigDecimal Expression() throws NumberFormatException :
 {
-	double i ;
-	double value ; 
+	BigDecimal i ;
+	BigDecimal value ; 
 }
 {
 	{ value = Operand() ; }
 	(
 		<PLUS>
 		{ i = Operand() ; }
-		{ value += i ; }
+		{ value = value.add(i) ; }
 		|
 		<MINUS>
 		{ i = Operand() ; }
-		{ value -= i ; }
+		{ value = value.subtract(i) ; }
 	)*
 	{ return value ; }
 }
 
 /* Operand: consists of Factors (arguments of *|/ operation) */
-double Operand() throws NumberFormatException :
+BigDecimal Operand() throws NumberFormatException :
 {
-	double i ;
-	double value ;
+	BigDecimal i ;
+	BigDecimal value ;
 }
 {
 	{ value = Factor() ; }
 	(
 		<MULT>
 		{ i = Factor() ; }
-		{ value *= i ; }
+		{ value = value.multiply(i) ; }
 		|
 		<DIV>
 		{ i = Factor() ; }
-		{ value /= i ; }
+		{ value = value.divide(i) ; }
 	)*
 
 	{ return value ; }
 }
 
-/* Factor: consists of Primaries (numbers) */
-double Factor() throws NumberFormatException :
+/* Factor: consists of a real number and an int power */
+BigDecimal Factor() throws NumberFormatException :
 {
-	double i ;
-	double power ;
-	double value ;
+	int power ;
+	BigDecimal value ;
 }
 {
-	{ value = Primary() ; }
+	{ value = RealNum() ; }
 	(
 		<POWER>
-		{ power = Factor() ; }
-		{ value =  Math.pow ( value, power ) ; }
+		{ power = IntNum() ; }
+		{ value =  value.pow(power) ; }
 	)*
 
 	{ return value ; }
 }
 
-
-double Primary() throws NumberFormatException :
+int IntNum() throws NumberFormatException :
 {
 	Token t ;
-	double value ;
+	int value ;
+}
+{
+	t = <INTEGER>
+
+	{ return Integer.parseInt( t.image ) ; }
+}
+
+
+BigDecimal RealNum() throws NumberFormatException :
+{
+	Token t ;
+	BigDecimal value ;
 }
 {
 	t = <NUMBER>
-	{ return Double.parseDouble ( t.image ) ; }
+	{ return new BigDecimal (t.image).setScale(1) ; }
 	|
 	<OPAR>
 	{ value = Expression() ; }

@@ -11,23 +11,29 @@ public interface SMLPConstants {
   /** End of File. */
   int EOF = 0;
   /** RegularExpression Id. */
-  int OPAR = 5;
+  int OPAR = 2;
   /** RegularExpression Id. */
-  int CPAR = 6;
+  int CPAR = 3;
   /** RegularExpression Id. */
-  int PLUS = 7;
+  int PLUS = 4;
   /** RegularExpression Id. */
-  int MINUS = 8;
+  int MINUS = 5;
   /** RegularExpression Id. */
-  int MULT = 9;
+  int MULT = 6;
   /** RegularExpression Id. */
-  int DIV = 10;
+  int DIV = 7;
   /** RegularExpression Id. */
-  int POWER = 11;
+  int POWER = 8;
+  /** RegularExpression Id. */
+  int DIGITS = 9;
+  /** RegularExpression Id. */
+  int INTEGER = 10;
+  /** RegularExpression Id. */
+  int REAL = 11;
   /** RegularExpression Id. */
   int NUMBER = 12;
   /** RegularExpression Id. */
-  int DIGITS = 13;
+  int EOL = 13;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -36,9 +42,6 @@ public interface SMLPConstants {
   String[] tokenImage = {
     "<EOF>",
     "\" \"",
-    "\"\\r\"",
-    "\"\\n\"",
-    "\"\\r\\n\"",
     "\"(\"",
     "\")\"",
     "\"+\"",
@@ -46,8 +49,11 @@ public interface SMLPConstants {
     "\"*\"",
     "\"/\"",
     "\"^\"",
-    "<NUMBER>",
     "<DIGITS>",
+    "<INTEGER>",
+    "<REAL>",
+    "<NUMBER>",
+    "<EOL>",
   };
 
 }
