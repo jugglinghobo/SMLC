@@ -15,31 +15,23 @@ public interface SMLCConstants {
   /** RegularExpression Id. */
   int CPAR = 3;
   /** RegularExpression Id. */
-  int SIN = 4;
+  int PLUS = 4;
   /** RegularExpression Id. */
-  int COS = 5;
+  int MINUS = 5;
   /** RegularExpression Id. */
-  int TAN = 6;
+  int MULT = 6;
   /** RegularExpression Id. */
-  int PLUS = 7;
+  int DIV = 7;
   /** RegularExpression Id. */
-  int MINUS = 8;
+  int POWER = 8;
   /** RegularExpression Id. */
-  int MULT = 9;
+  int NUMBER = 9;
   /** RegularExpression Id. */
-  int DIV = 10;
+  int DIGITS = 10;
   /** RegularExpression Id. */
-  int POWER = 11;
+  int EOL = 11;
   /** RegularExpression Id. */
-  int NUMBER = 12;
-  /** RegularExpression Id. */
-  int DIGITS = 13;
-  /** RegularExpression Id. */
-  int EOL = 14;
-  /** RegularExpression Id. */
-  int HELP = 15;
-  /** RegularExpression Id. */
-  int QUIT = 16;
+  int HELP = 12;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -50,9 +42,6 @@ public interface SMLCConstants {
     "\" \"",
     "\"(\"",
     "\")\"",
-    "<SIN>",
-    "<COS>",
-    "<TAN>",
     "\"+\"",
     "\"-\"",
     "\"*\"",
@@ -62,7 +51,6 @@ public interface SMLCConstants {
     "<DIGITS>",
     "<EOL>",
     "\"h\"",
-    "<QUIT>",
   };
 
 }

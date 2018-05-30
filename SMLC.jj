@@ -1,8 +1,10 @@
 /**
- * SMLC v2 - Simple Math Language Parser v2
- * Parser for Parsing SML v1 with additional features:
- * * support for sin(), cos(), tan()
- * * support for real numbers
+ * SMLC v1- Simple Math Language Parser v1
+ * Contains the following features:
+ * * accept operators + | - | * | / | ^
+ * * respect operator precedence
+ * * accept nested expressions in parentheses
+ * * accept integer numbers
  */
 options
 {
@@ -17,7 +19,7 @@ PARSER_BEGIN(SMLC)
 	public class SMLC {
 		public static void main(String args []) throws ParseException, TokenMgrError {
 			SMLC parser = new SMLC( System.in ) ;
-			System.out.println("Welcome to SMLI V2 - The Interactive SML Parser");
+			System.out.println("Welcome to SMLI V1 - The Interactive SML Parser");
 			System.out.println("Please enter your SML expression");
 			System.out.print("=? ");
 
@@ -30,19 +32,17 @@ PARSER_END(SMLC)
 /*
 GRAMMAR:
 Nonterminals:
-Start := (Expression EOL | HELP)* | QUIT | EOF
+Start := (Expression EOL | HELP)* | EOF
 Expression := MultExpression ADDOP MultExpression
 MultExpression := PowExpression MULTOP PowExpression
-PowExpression := TrigExpression POWOP TrigExpression
-TrigExpression := Numerical | TRIGFUN Numerical
+PowExpression := Numerical POWOP PowExpression
 Numerical := Number | OPAR Expression CPAR
-Number := Digits | Digits.Digits | Digits. | .Digits
+Number := Digits
 Digits := DIGIT DIGIT*
 
 Terminals (Tokens):
 OPAR := (
 CPAR := )
-TRIGFUN := sin | cos | tan
 ADDOP := + | -
 MULTOP := * | /
 POWOP := ^
@@ -58,13 +58,6 @@ TOKEN : /* PARENTHESES */
 	| < CPAR : ")" >
 }
 
-TOKEN : /* TRIG FUNCTIONS */
-{
-	< SIN : "sin" | "SIN" >
-	| < COS : "cos" | "COS" >
-	| < TAN : "tan" | "TAN" >
-}
-
 TOKEN : /* OPERATORS */
 {
 	< PLUS : "+" >
@@ -74,7 +67,7 @@ TOKEN : /* OPERATORS */
 	| < POWER : "^" >
 }
 
-TOKEN : { < NUMBER : <DIGITS> | <DIGITS> "." <DIGITS> | <DIGITS> "." | "." <DIGITS> > }
+TOKEN : { < NUMBER : <DIGITS> > }
 TOKEN : { < #DIGITS : (["0"-"9"])+ > }
 
 TOKEN :
@@ -84,13 +77,9 @@ TOKEN :
 
 TOKEN : { <HELP : "h"> }
 
-TOKEN : { <QUIT : "q" | "Q" > }
-
-/* specify the parser */
-
 void Start(PrintStream printStream) throws NumberFormatException :
 {
-	double value;
+	int value;
 }
 {
 	(
@@ -109,20 +98,16 @@ void Start(PrintStream printStream) throws NumberFormatException :
 	 { printStream.println("quit: 'q'"); }
 	 { printStream.print("=? "); }
 	)*
-	(
-		<QUIT>
-		{ printStream.println("Goodbye"); }
-		|
-		<EOF>
-		{ printStream.println("Goodbye"); }
-		)
+    <EOF>
+    { printStream.println("Goodbye"); }
 } 
 
-/* Expression: Consists of Operands (arguments of +|- operation) */
-double Expression() throws NumberFormatException :
+// Expression: A MultExpression or an addition/subtraction of two
+// MultExpression results.
+int Expression() throws NumberFormatException :
 {
-	double i ;
-	double value ; 
+	int i ;
+	int value ; 
 }
 {
 	value = MultExpression()
@@ -138,11 +123,12 @@ double Expression() throws NumberFormatException :
 	{ return value ; }
 }
 
-/* Operand: consists of Factors (arguments of *|/ operation) */
-double MultExpression() throws NumberFormatException :
+// MultExpression: A PowExpression or a multiplication/division of two
+// PowExpression results.
+int MultExpression() throws NumberFormatException :
 {
-	double i ;
-	double value ;
+	int i ;
+	int value ;
 }
 {
 	value = PowExpression()
@@ -159,54 +145,35 @@ double MultExpression() throws NumberFormatException :
 	{ return value ; }
 }
 
-/* PowExpression: a TrigExpression to the power of the result of a trig expression */
-double PowExpression() throws NumberFormatException :
+// PowExpression: A Number (terminal) or an exponentiation of 
+int PowExpression() throws NumberFormatException :
 {
-	double power ;
-	double value ;
+	int power ;
+	int value ;
 }
 {
-	value = TrigExpression()
+	value = Num()
 	(
-		LOOKAHEAD(2)
+   // This LOOKAHEAD ensures that the compiler checks if the power variable is
+   // just a value, or yet another PowExpression()
+   LOOKAHEAD(2)
 		<POWER>
 		power = PowExpression()
-		{ value =  Math.pow(value, power) ; }
+		{ value =  (int) Math.pow(value, power) ; }
 	)*
 	{ return value ; }
 }
 
-double TrigExpression() throws NumberFormatException :
-{
-	double value ;
-}
-{
-	value = Num()
-	{ return value; }
-	|
-	(
-	 <SIN>
-	 value = Num()
-	 { return Math.sin(value); }
-	 |
-	 <COS>
-	 value = Num()
-	 { return Math.cos(value); }
-	 |
-	 <TAN>
-	 value = Num()
-	 { return Math.tan(value); }
-	)*
-}
-
-double Num() throws NumberFormatException :
+// Number: The representation of a numerical terminal. Can be either an
+// integer, or the result of a nested Expression in parentheses.
+int Num() throws NumberFormatException :
 {
 	Token t ;
-	double value ;
+	int value ;
 }
 {
 	t = <NUMBER>
-	{ value = Double.parseDouble (t.image); }
+	{ value = Integer.parseInt (t.image); }
 	{ return value ; }
 	|
 	<OPAR>
@@ -216,7 +183,7 @@ double Num() throws NumberFormatException :
 	|
 	<MINUS>
 	t = <NUMBER>
-	{ value = (Double.parseDouble(t.image) * -1); }
+	{ value = (Integer.parseInt(t.image) * -1); }
 
 	{ return value ; }
 }
