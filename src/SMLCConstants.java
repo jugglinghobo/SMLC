@@ -39,7 +39,9 @@ public interface SMLCConstants {
   /** RegularExpression Id. */
   int HELP = 15;
   /** RegularExpression Id. */
-  int QUIT = 16;
+  int GRAMMAR = 16;
+  /** RegularExpression Id. */
+  int QUIT = 17;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -61,7 +63,8 @@ public interface SMLCConstants {
     "<NUMBER>",
     "<DIGITS>",
     "<EOL>",
-    "\"h\"",
+    "<HELP>",
+    "<GRAMMAR>",
     "<QUIT>",
   };
 
