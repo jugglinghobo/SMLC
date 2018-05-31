@@ -1,0 +1,264 @@
+/**
+ * SMLC v1- Simple Math Language Parser v1
+ * Contains the following features:
+ * * accept operators + | - | * | / | ^
+ * * accept trigonometric functions sin | cos | tan
+ * * respect operator precedence
+ * * accept nested expressions in parentheses
+ * * accept real numbers
+ * * terminate interactive mode with q
+ */
+options
+{
+  static = false;
+}
+
+PARSER_BEGIN(SMLC)
+  package smlc;
+
+  import java.util.Locale;
+  import java.io.PrintStream;
+  import java.text.DecimalFormat;
+  import java.text.DecimalFormatSymbols;
+  import java.math.RoundingMode;
+
+  public class SMLC {
+    public static void main(String args []) throws ParseException, TokenMgrError {
+      SMLC parser = new SMLC( System.in ) ;
+      System.out.println("Welcome to SMLI V2 - The Interactive SML Parser");
+      System.out.println("Please enter your SML expression or type 'h' for help");
+      System.out.print("=? ");
+
+      parser.Start(System.out);
+    }
+  }
+
+PARSER_END(SMLC)
+
+  SKIP : { " " }
+
+TOKEN : /* PARENTHESES */
+{
+  < OPAR : "(" >
+    | < CPAR : ")" >
+}
+
+TOKEN : /* TRIG FUNCTIONS */
+{
+  < SIN : "sin" | "SIN" >
+    | < COS : "cos" | "COS" >
+    | < TAN : "tan" | "TAN" >
+}
+
+TOKEN : /* OPERATORS */
+{
+  < PLUS : "+" >
+    | < MINUS : "-" >
+    | < MULT : "*" >
+    | < DIV : "/" >
+    | < POWER : "^" >
+}
+
+TOKEN : { < NUMBER : <DIGITS> | <DIGITS> "." <DIGITS> | <DIGITS> "." | "." <DIGITS> > }
+TOKEN : { < #DIGITS : (["0"-"9"])+ > }
+
+TOKEN :
+{
+  < EOL : "\r" | "\n" | "\r\n" >
+}
+
+TOKEN : { <HELP : "h" | "H" > }
+TOKEN : { <GRAMMAR : "g" | "G"> }
+
+TOKEN : { <QUIT : "q" | "Q" > }
+
+/* specify the parser */
+void Start(PrintStream printStream) throws NumberFormatException:
+{
+  double value;
+  DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
+  otherSymbols.setDecimalSeparator('.');
+  otherSymbols.setGroupingSeparator('\'');
+  DecimalFormat df = new DecimalFormat("#.####", otherSymbols);
+  df.setRoundingMode(RoundingMode.HALF_UP);
+}
+{
+  (
+   value = Expression()
+   <EOL>
+   { printStream.println("=> " + df.format(value) ); }
+   { printStream.print("=? "); }
+   |
+   <HELP>
+   <EOL>
+   {
+   String help = "\nSMLI HELP - EXAMPLES\n"
+   + "show this help: h\n"
+   + "display the SML 1.0 grammar: g\n"
+   + "addition: 'a + b'\n"
+   + "subtraction: 'a - b'\n"
+   + "multiplication: 'a * b'\n"
+   + "division: 'a / b'\n"
+   + "exponentiation: 'a ^ b'\n"
+   + "sine: 'sin a'\n"
+   + "cosine: 'cos a'\n"
+   + "tangent: 'tan a'\n"
+   + "nested expressions: 'a + (b - c)'\n"
+   + "quit smli: 'q'\n"
+   + "=? ";
+   }
+  { printStream.print(help); }
+  |
+    <GRAMMAR>
+    <EOL>
+    {
+      String grammar = "\nSMLI GRAMMAR\n"
+        + "\n"
+        + "Nonterminals (Terminals/Tokens in uppercase):\n"
+        + "--------------------------------------------\n"
+        + "Start := (Expression EOL | HELP | GRAMMAR)* | EOF\n"
+        + "Expression := MultExpression (PLUS MultExpression | MINUS MultExpression)*\n"
+        + "MultExpression := PowExpression (MULT PowExpression | DIV PowExpression)*\n"
+        + "PowExpression := TrigExpression (POW PowExpression)*\n"
+        + "TrigExpression := UnaryElement | SIN TrigExpression | COS TrigExpression | TAN TrigExpression\n"
+        + "UnaryElement := MINUS NumericalElement | NumericalElement\n"
+        + "NumericalElement := Number | OPAR Expression CPAR\n"
+        + "Number := Digits | Digits.Digits | Digits. | .Digits\n"
+        + "Digits := DIGIT DIGIT*\n"
+        + "\n"
+        + "Terminals (Tokens):\n"
+        + "-------------------\n"
+        + "OPAR := (\n"
+        + "CPAR := )\n"
+        + "PLUS := +\n"
+        + "MINUS := -\n"
+        + "MULT := *\n"
+        + "DIV := /\n"
+        + "POW := ^\n"
+        + "SIN := sin | SIN\n"
+        + "COS := cos | COS\n"
+        + "TAN := tan | TAN\n"
+        + "DIGIT := 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9\n"
+        + "EOL := \\r | \\n | \\r\\n\n"
+        + "HELP := h | H\n"
+        + "GRAMMAR := g | G\n"
+        + "=? ";
+    }
+  { printStream.print(grammar); }
+  )*
+    (
+     <QUIT>
+     { printStream.println("Goodbye"); }
+     |
+     <EOF>
+     { printStream.println("Goodbye"); }
+    )
+} 
+
+/* Expression: Consists of Operands (arguments of +|- operation) */
+double Expression() throws NumberFormatException:
+{
+  double i;
+  double value ; 
+}
+{
+  value = MultExpression()
+    (
+     <PLUS>
+     i = MultExpression()
+     { value = value + i ; }
+     |
+     <MINUS>
+     i = MultExpression()
+     { value = value - i ; }
+    )*
+    { return value ; }
+}
+
+/* Operand: consists of Factors (arguments of *|/ operation) */
+double MultExpression() throws NumberFormatException :
+{
+  double i ;
+  double value ;
+}
+{
+  value = PowExpression()
+    (
+     <MULT>
+     i = PowExpression()
+     { value = value * i ; }
+     |
+     <DIV>
+     i = PowExpression()
+     { value = value / i ; }
+    )*
+
+    { return value ; }
+}
+
+/* PowExpression: a TrigExpression to the power of the result of a trig expression */
+double PowExpression() throws NumberFormatException :
+{
+  double power ;
+  double value ;
+}
+{
+  value = TrigExpression()
+    (
+     LOOKAHEAD(2)
+     <POWER>
+     power = PowExpression()
+     { value =  Math.pow(value, power) ; }
+    )*
+    { return value ; }
+}
+
+double TrigExpression() throws NumberFormatException :
+{
+  double value ;
+}
+{
+  value = UnaryElement()
+  { return value; }
+  |
+    <SIN>
+    value = TrigExpression()
+    { return Math.sin(value); }
+  |
+    <COS>
+    value = TrigExpression()
+    { return Math.cos(value); }
+  |
+    <TAN>
+    value = TrigExpression()
+    { return Math.tan(value); }
+}
+
+double UnaryElement() throws NumberFormatException :
+{
+  double value;
+}
+{
+  <MINUS>
+  { value = NumericalElement() * -1; }
+  { return value; }
+  |
+    value = NumericalElement()
+    { return value; }
+}
+
+double NumericalElement() throws NumberFormatException :
+{
+  Token t ;
+  double value ;
+}
+{
+  t = <NUMBER>
+  { value = Double.parseDouble (t.image); }
+  { return value ; }
+  |
+    <OPAR>
+    value = Expression()
+    <CPAR>
+    { return value ; }
+}
