@@ -15,6 +15,8 @@ SMLC supports the following features:
 -- Support for trigonometric functions sine, cosine and tangent
 -- Support for termination of the interactive SML compiler with "q"
 
+The grammar that is recognized by the Parser can be found in the GRAMMAR.txt file.
+
 
 === Installation
 
