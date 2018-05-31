@@ -10,7 +10,7 @@ javaCC implementation.
 
 == The grammar for V1:
 
-Start := (Expression EOL | HELP | GRAMMAR)* | QUIT | EOF
+Start := (Expression EOL | HELP | GRAMMAR)* | EOF
 Expression := MultExpression (PLUS MultExpression | MINUS MultExpression)*
 MultExpression := PowExpression (MULT PowExpression | DIV PowExpression)*
 PowExpression := UnaryElement (POW PowExpression)*
