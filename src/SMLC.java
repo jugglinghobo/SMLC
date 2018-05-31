@@ -19,8 +19,7 @@
     }
 
 /* specify the parser */
-  final public 
-void Start(PrintStream printStream) throws ParseException, NumberFormatException {double value;
+  final public void Start(PrintStream printStream) throws ParseException, NumberFormatException {double value;
   DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
   otherSymbols.setDecimalSeparator('.');
   otherSymbols.setGroupingSeparator('\u005c'');
@@ -84,7 +83,7 @@ String grammar = "\u005cnSMLI GRAMMAR\u005cn"
         + "\u005cn"
         + "Nonterminals (Terminals/Tokens in uppercase):\u005cn"
         + "--------------------------------------------\u005cn"
-        + "Start := (Expression EOL | HELP | GRAMMAR)* | EOF\u005cn"
+        + "Start := (Expression EOL | HELP | GRAMMAR)* | QUIT | EOF\u005cn"
         + "Expression := MultExpression (PLUS MultExpression | MINUS MultExpression)*\u005cn"
         + "MultExpression := PowExpression (MULT PowExpression | DIV PowExpression)*\u005cn"
         + "PowExpression := TrigExpression (POW PowExpression)*\u005cn"
@@ -110,6 +109,7 @@ String grammar = "\u005cnSMLI GRAMMAR\u005cn"
         + "EOL := \u005c\u005cr | \u005c\u005cn | \u005c\u005cr\u005c\u005cn\u005cn"
         + "HELP := h | H\u005cn"
         + "GRAMMAR := g | G\u005cn"
+        + "QUIT := q | Q\u005cn"
         + "=? ";
 printStream.print(grammar);
         break;
