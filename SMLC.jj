@@ -3,6 +3,7 @@
  * Parser for Parsing SML v1 with additional features:
  * * support for sin(), cos(), tan()
  * * support for real numbers
+ * * support for terminating interactive mode with q
  */
 options
 {

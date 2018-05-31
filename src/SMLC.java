@@ -7,9 +7,9 @@
         public class SMLC implements SMLCConstants {
                 public static void main(String args []) throws ParseException, TokenMgrError {
                         SMLC parser = new SMLC( System.in ) ;
-                        System.out.println( "SMLC V2 - Now with 3 more operations!" ) ;
-                        System.out.println( "Please enter your SML expression" ) ;
-                        System.out.print( "=? " ) ;
+                        System.out.println("Welcome to SMLI V2 - The Interactive SML Parser");
+                        System.out.println("Please enter your SML expression");
+                        System.out.print("=? ");
 
                         parser.Start(System.out) ;
                 }
