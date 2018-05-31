@@ -16,16 +16,20 @@ options
 PARSER_BEGIN(SMLC)
   package smlc;
 
-  import java.io.PrintStream ;
+  import java.util.Locale;
+  import java.io.PrintStream;
+  import java.text.DecimalFormat;
+  import java.text.DecimalFormatSymbols;
+  import java.math.RoundingMode;
 
   public class SMLC {
     public static void main(String args []) throws ParseException, TokenMgrError {
       SMLC parser = new SMLC( System.in ) ;
       System.out.println("Welcome to SMLI V2 - The Interactive SML Parser");
-      System.out.println("Please enter your SML expression");
+      System.out.println("Please enter your SML expression or type 'h' for help");
       System.out.print("=? ");
 
-      parser.Start(System.out) ;
+      parser.Start(System.out);
     }
   }
 
@@ -69,16 +73,20 @@ TOKEN : { <GRAMMAR : "g" | "G"> }
 TOKEN : { <QUIT : "q" | "Q" > }
 
 /* specify the parser */
-
-void Start(PrintStream printStream) throws NumberFormatException :
+void Start(PrintStream printStream) throws NumberFormatException:
 {
   double value;
+  DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.getDefault());
+  otherSymbols.setDecimalSeparator('.');
+  otherSymbols.setGroupingSeparator('\'');
+  DecimalFormat df = new DecimalFormat("#.####", otherSymbols);
+  df.setRoundingMode(RoundingMode.HALF_UP);
 }
 {
   (
    value = Expression()
    <EOL>
-   { printStream.println( "=> " + value ); }
+   { printStream.println("=> " + df.format(value) ); }
    { printStream.print("=? "); }
    |
    <HELP>
@@ -148,9 +156,9 @@ void Start(PrintStream printStream) throws NumberFormatException :
 } 
 
 /* Expression: Consists of Operands (arguments of +|- operation) */
-double Expression() throws NumberFormatException :
+double Expression() throws NumberFormatException:
 {
-  double i ;
+  double i;
   double value ; 
 }
 {
