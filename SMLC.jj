@@ -116,7 +116,7 @@ void Start(PrintStream printStream) throws NumberFormatException:
         + "\n"
         + "Nonterminals (Terminals/Tokens in uppercase):\n"
         + "--------------------------------------------\n"
-        + "Start := (Expression EOL | HELP | GRAMMAR)* | EOF\n"
+        + "Start := (Expression EOL | HELP | GRAMMAR)* | QUIT | EOF\n"
         + "Expression := MultExpression (PLUS MultExpression | MINUS MultExpression)*\n"
         + "MultExpression := PowExpression (MULT PowExpression | DIV PowExpression)*\n"
         + "PowExpression := TrigExpression (POW PowExpression)*\n"
@@ -142,6 +142,7 @@ void Start(PrintStream printStream) throws NumberFormatException:
         + "EOL := \\r | \\n | \\r\\n\n"
         + "HELP := h | H\n"
         + "GRAMMAR := g | G\n"
+        + "QUIT := q | Q\n"
         + "=? ";
     }
   { printStream.print(grammar); }
