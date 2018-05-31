@@ -4,7 +4,9 @@ Some notes:
 1. The EOL, HELP, GRAMMAR and QUIT terminals are not part of the SML spec,
 however they are used for the interactive version of the SML compiler and are
 therefore included for completeness.
-2. To improve readability, uppercase symbols denote terminals.
+2. In some cases, the grammar is not normalized because this reflects the
+javaCC implementation.
+3. To improve readability, uppercase symbols denote terminals.
 
 == The grammar for V1:
 
