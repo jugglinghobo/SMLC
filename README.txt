@@ -1,63 +1,54 @@
-# SMLP V2 - Simple Math Language Parser, Version 2
+= SMLC V2 - Simple Math Language Compiler, Version 2
 
-### Introduction
+== Introduction
 
 This project was an assignment for the course Languages and Compilers by Prof. P. Felber at the University of Neuchâtel, Switzerland.
-SMLP supports the following features:
+SMLC supports the following features:
 
 - Version 1
--- Support the following operations for integers: `+`, `-`, `*`, `/`, `^`
+-- Support the following operations for integers: +, -, *, /, ^
 -- Support for correct operator precedence
 -- Support for nested SML expressions in parentheses
 
 - Version 2
--- Support for real numbers where applicable
--- Support for additional operations: `sin()`, `cos()`, `tan()`
--- Support for early termination of an SML program with `q`
+-- Support for real numbers
+-- Support for trigonometric functions sine, cosine and tangent
+-- Support for termination of the interactive SML compiler with "q"
 
 
-### Installation
+=== Installation
 
-####1. First, make sure that you have installed javacc and added the files to your $PATH and $CLASSPATH variables.
+==== 1. First, make sure that you have installed javacc and added the files to your $PATH variable.
 An example installation looks like this:
 
 1. Download javacc 6.0.1 from the project website.
 2. Unpack the downloaded archive and copy the resulting folder to your home directory
-3. Add the unpacked folder to your $PATH environment variables: In your .bashrc file, add the lines `export PATH=$HOME/javacc-6.0/bin:$PATH`
+3. Add the unpacked folder to your $PATH: In your .bashrc file, add the line `export PATH=$HOME/javacc-6.0/bin:$PATH`
 
-####2. Clone this repository
+==== 2. Clone this repository
+You can clone this git repository with "git clone git@github.com:jugglinghobo/SMLC.git /path/to/target/directory"
+Alternatively, you can just download the directory as a ZIP file.
 
-You can clone this git repository with git clone git@github.com:jugglinghobo/SMLP.git /path/to/target/directory
+==== 3. Setup
+===== 3.1 Quick Setup
+1. In your terminal, navigate to the SMLC root directory (where you downloaded it to)
+2. Run "chmod +x compile && chmod +x smli"
+3. Run "./compile" to generate the java .class files for SMLC
 
-####3. Generate the java classes for the compiler and compile them
+===== 3.2 Manual Setup
+When you are in the SMLC root directory, you can manually generate the compiler from the javaCC files by running:
+"cd src && javacc ../SMLP.jj"
 
-You can generate the actual compiler from the javaCC files with:
+Then you can compile the generated .java files using:
+"javac -d . ./src/*.java"
 
-```bash
-cd src && javacc ../SMLP.jj
-```
+==== 5. Running the Compiler
+When you have generated the necessary java .class files, you can now run the compiler.
+This repository contains a program (SMLI, SML Interactive) that runs the compiler interactively.
+You can start this program by running:
+"./smli" (or alternatively "java smlc/SMLC")
 
-Then you can compile the generated .java files using
-
-```
-javac -d . ./src/*.java
-```
-
-Alternatively, you can do both steps at once by running the compile script.
-1. First, make the file executable with `chmod +x compile`
-2. run `./compile` to execute both compilation steps
-
-####4. Compile an SML program
-
-You can write your own SML program or use the example programs found in the `/input` directory.
-Then you can run the program with
-
-```
-java smlp/SMLP < /path/to/your/program
-```
-
-Alternatively, you can use the provided `run` script. First, make it executable with `chmod +x run`. To execute an SML program you can then just call
-
-```
-./run input/ops.txt
-```
+==== 6. Testing the Compiler
+When running SMLI, you can enter your SML expressions at the "=? " prompt, and evaluate them by pressing return (<ENTER>).
+If you need help, you can type "h" to see a list of accepted operations.
+When typing "g", you can see the grammar that was used to implement the parser.
