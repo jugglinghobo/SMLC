@@ -1,0 +1,63 @@
+Grammar for SMLC V1 / V2
+
+Some notes:
+1. The EOL, HELP, GRAMMAR and QUIT terminals are not part of the SML spec, however they are used for the interactive version of the SML compiler and are therefore included for completeness.
+2. To improve readability, uppercase symbols denote terminals.
+
+== The grammar for V1:
+
+Start := (Expression EOL | HELP | GRAMMAR)* | EOF
+Expression := MultExpression (PLUS MultExpression | MINUS MultExpression)*
+MultExpression := PowExpression (MULT PowExpression | DIV PowExpression)*
+PowExpression := UnaryElement (POW PowExpression)*
+UnaryElement := MINUS Numerical | Numerical
+Numerical := Number | OPAR Expression CPAR
+Number := Digits
+Digits := DIGIT DIGIT*
+
+OPAR := (
+CPAR := )
+PLUS := +
+MINUS := -
+MULT := *
+DIV := /
+POW := ^
+DIGIT := 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+EOL := \\r | \\n | \\r\\n
+HELP := h | H
+GRAMMAR := g | G
+
+
+== The grammar for V2:
+
+Note: The following changes have been made:
+1. Introduced TrigExpression
+2. PowExpression begins with a TrigExpression instead of a UnaryElement
+3. Number has new format for allowing decimal places
+4. Terminal 'q' allows termination of SML program
+
+Start := (Expression EOL | HELP | GRAMMAR)* | EOF
+Expression := MultExpression (PLUS MultExpression | MINUS MultExpression)*
+MultExpression := PowExpression (MULT PowExpression | DIV PowExpression)*
+PowExpression := TrigExpression (POW PowExpression)*
+TrigExpression := UnaryElement | SIN TrigExpression | COS TrigExpression | TAN TrigExpression
+UnaryElement := MINUS NumericalElement | NumericalElement
+NumericalElement := Number | OPAR Expression CPAR
+Number := Digits | Digits.Digits | Digits. | .Digits
+Digits := DIGIT DIGIT*
+
+OPAR := (
+CPAR := )
+PLUS := +
+MINUS := -
+MULT := *
+DIV := /
+POW := ^
+SIN := sin | SIN
+COS := cos | COS
+TAN := tan | TAN
+DIGIT := 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+EOL := \\r | \\n | \\r\\n
+HELP := h | H
+GRAMMAR := g | G
+QUIT := q | Q
