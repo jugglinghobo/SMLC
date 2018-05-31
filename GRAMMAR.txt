@@ -40,7 +40,7 @@ Note: The following changes have been made:
 3. Number has new format for allowing decimal places
 4. Terminal 'q' allows termination of SML program
 
-Start := (Expression EOL | HELP | GRAMMAR)* | EOF
+Start := (Expression EOL | HELP | GRAMMAR)* | QUIT | EOF
 Expression := MultExpression (PLUS MultExpression | MINUS MultExpression)*
 MultExpression := PowExpression (MULT PowExpression | DIV PowExpression)*
 PowExpression := TrigExpression (POW PowExpression)*
