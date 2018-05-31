@@ -36,13 +36,13 @@ When you are in the SMLC root directory, you can manually generate the compiler 
 Then you can compile the generated .java files using:
 "javac -d . ./src/*.java"
 
-==== 5. Running the Compiler
+==== 4. Running the Compiler
 When you have generated the necessary java .class files, you can now run the compiler.
 This repository contains a program (SMLI, SML Interactive) that runs the compiler interactively.
 You can start this program by running:
 "./smli" (or alternatively "java smlc/SMLC")
 
-==== 6. Testing the Compiler
+==== 5. Testing the Compiler
 When running SMLI, you can enter your SML expressions at the "=? " prompt, and evaluate them by pressing return (<ENTER>).
 If you need help, you can type "h" to see a list of accepted operations.
 When typing "g", you can see the grammar that was used to implement the parser.
