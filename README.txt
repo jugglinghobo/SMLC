@@ -1,4 +1,4 @@
-MLC V1 - Simple Math Language Compiler, Version 1
+SMLC V1 - Simple Math Language Compiler, Version 1
 
 == Introduction
 
